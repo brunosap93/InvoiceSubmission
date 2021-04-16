@@ -1,0 +1,206 @@
+<mvc:View
+	controllerName="ns.InvoiceSubmission.controller.Object"
+    xmlns:tabl="sap.ui.table"
+    xmlns="sap.m"
+    xmlns:u="sap.ui.unified"
+	xmlns:mvc="sap.ui.core.mvc"
+	xmlns:semantic="sap.f.semantic"
+    xmlns:core="sap.ui.core" 
+    xmlns:l="sap.ui.layout"
+    xmlns:si="sap.suite.ui.commons.statusindicator"
+	xmlns:f="sap.ui.layout.form">
+
+	<semantic:SemanticPage
+		id="page"
+		headerPinnable="false"
+		toggleHeaderOnTitleClick="false"
+		busy="{objectView>/busy}"
+		busyIndicatorDelay="{objectView>/delay}"
+        showFooter="false">
+
+		<semantic:titleHeading>
+   		<Button icon="sap-icon://nav-back" press="onNavBack" type="Transparent"/>
+   	</semantic:titleHeading>
+	
+   	<semantic:headerContent>
+   		<ObjectIdentifier
+		title="{path:'DocNumber',formatter:'.formatter.docNumber'}"
+   		text="{DocumentDate}" id="docNumber"/>
+    <ObjectIdentifier
+   		text="{SupplierName}" id="supplierName"/>
+        <ObjectNumber
+			number="{NetPriceAmount}"
+			unit="{DocumentCurrency}" id="invoiceAmount"/>
+	    <ObjectStatus text="{Status}" state="{path:'Status',formatter:'.formatter.state'}" id="invoiceStatus" />
+   	</semantic:headerContent>
+
+		<semantic:sendEmailAction>
+			<semantic:SendEmailAction id="shareEmail" press=".onShareEmailPress"/>
+		</semantic:sendEmailAction>
+
+<semantic:content >
+<VBox id="vbox1" renderType="Bare" alignItems="Start">
+<HBox id="hboxm" renderType="Bare" alignItems="Start" alignContent="Start">
+<VBox id="vbox2" renderType="Div" alignItems="Start">
+<Table
+				id="table"
+				width="auto"
+				items="{
+					path: 'To_InvoiceItems',
+					sorter: {
+						path: 'InvoiceItem',
+						descending: false
+					},
+                    filters : [
+                        { path : 'Status', operator : 'EQ', value1 : 'Pending'}
+                    ]
+				}"
+				noDataText="{worklistView>/tableNoDataText}"
+				growing="true"
+				growingScrollToLoad="true"
+				updateFinished=".onUpdateFinished">
+
+				<headerToolbar>
+					<Toolbar>
+						<Title id="tableHeader" text="{worklistView>/worklistTableTitle}"/>
+						<ToolbarSpacer />
+						<!--<SearchField
+							id="searchField"
+							tooltip="{i18n>worklistSearchTooltip}"
+							search=".onSearch"
+							width="auto">
+						</SearchField>-->
+                        <Title  text="Did you receive a Purachse Order?"/>
+                        <Switch
+							state="{objectView>/PO}"
+                            id = "switchPO"
+							customTextOn="on"
+							customTextOff="off"
+							tooltip="enable select all items"
+							change="onSwitchChange"/>
+					</Toolbar>
+				</headerToolbar>
+                
+				<columns>
+                    <Column id="positionColumn">
+                        <Text text="Position" id="positionColumnTitle"/>
+                    </Column>
+                    <Column id="materialColumn" >
+                        <Text text="Material" id="materialColumnTitle"/>
+                    </Column>
+                    <Column id="descriptionColumn">
+                        <Text text="Description" id="descriptionColumnTitle"/>
+                    </Column>
+                    <Column id="quantityColumn">
+                        <Text text="Quantity" id="quantityColumnTitle"/>
+                    </Column>
+                    <Column id="unitPriceColumn" >
+                        <Text text="Unit Price" id="unitPriceColumnTitle"/>
+                    </Column>
+                    <Column id="netAmountColumn">
+                        <Text text="Net Amount" id="netAmountColumnTitle"/>
+                    </Column>
+                    <Column id="unitStatusColumn" hAlign="End">
+						<Text text="Status" id="unitStatusColumnTitle"/>
+					</Column>
+                </columns>
+
+				<items>
+					<ColumnListItem>
+						<cells>
+							<ObjectIdentifier
+								title="{InvoiceItem}"/>
+                            <ObjectIdentifier
+								title="{Material}"/>
+                            <ObjectIdentifier
+								title="{Description}"/>
+                            <ObjectIdentifier
+								title="{InvoiceQuantity}"/>
+                            <ObjectIdentifier
+								title="{UnitPrice}"/>
+                            
+                            <ObjectIdentifier
+								title="{NetPriceAmount}"/>
+                            
+	                        <ObjectStatus text="{Status}" state="{path:'Status',formatter:'.formatter.state'}"/>
+						</cells>
+					</ColumnListItem>
+				</items>
+			</Table>
+ </VBox>
+<VBox id="hbox2" renderType="Div" visible="{objectView>/PO}">
+    <tabl:TreeTable
+        id="treeTable"
+        enableColumnReordering="false"
+        expandFirstLevel="false"
+        selectionMode="MultiToggle"
+        enableSelectAll="true"
+        rowSelectionChange="oRowSelection"
+        >
+
+        <tabl:columns>
+            <tabl:Column label="Purchase Order" width="40px">
+                <tabl:template>
+                    <CheckBox text="Option a" selected="true" />
+                </tabl:template>
+            </tabl:Column>
+            <tabl:Column label="Purchase Order" width="200px">
+                <tabl:template>
+                    <Text text="{DocNumber} - {Supplier}" wrapping="false" />
+                </tabl:template>
+            </tabl:Column>
+            <tabl:Column label="Item" width="50px">
+                <tabl:template>
+                    <Text text="{PurchaseOrderItem}" wrapping="false" />
+                </tabl:template>
+            </tabl:Column>
+            <tabl:Column label="Material">
+                <tabl:template>
+                    <Text text="{PurchaseOrderItemText}" wrapping="false" />
+                </tabl:template>
+            </tabl:Column>
+            <tabl:Column label="Net Price">
+                <tabl:template>
+                    <Text text="{NetPriceAmount} {ItemCurrency}" wrapping="false" />
+                </tabl:template>
+            </tabl:Column>
+            
+        </tabl:columns>
+
+    </tabl:TreeTable>
+
+ </VBox>
+
+</HBox>
+<HBox alignItems="Center" alignContent="Center" visible="{objectView>/PO}">
+  <Title  text="Net amount difference:"/>
+   <NumericContent id="difAmount" value="" scale="{DocumentCurrency}"
+		valueColor="Critical" indicator="Up" class="sapUiSmallMargin"
+		press="press" />
+</HBox>
+
+    <PDFViewer  source="{path:'DocNumber',formatter:'.formatter.pdfURL'}" title="{path:'DocNumber',formatter:'.formatter.docNumber'}" height="600px">
+				<layoutData>
+					<FlexItemData growFactor="1" />
+				</layoutData>
+	</PDFViewer>
+
+  </VBox>
+        </semantic:content>
+        <semantic:titleMainAction>
+			<semantic:TitleMainAction id="Sumbit" text="Sumbit" press="onSubmitInvoice"/>
+		</semantic:titleMainAction>
+        <!-- Semantic Footer Buttons -->
+		<semantic:positiveAction >
+			<semantic:PositiveAction text="Sumbit" press="onSubmitInvoice"/>
+		</semantic:positiveAction>
+
+		<!--<semantic:negativeAction>
+			<semantic:NegativeAction />
+		</semantic:negativeAction>-->
+
+		<semantic:messagesIndicator>
+			<semantic:MessagesIndicator press="onMessagesButtonPress"/>
+		</semantic:messagesIndicator>
+	</semantic:SemanticPage>
+</mvc:View>
