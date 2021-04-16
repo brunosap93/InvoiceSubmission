@@ -1,0 +1,48 @@
+{
+  "welcomeFile": "/index.html",
+  "authenticationMethod": "route",
+  "logout": {
+    "logoutEndpoint": "/do/logout"
+  },
+  "routes": [
+    {
+      "authenticationType": "xsuaa",
+      "source": "^/doxDest/(.*)$",
+      "csrfProtection": false,
+      "destination": "doxDest",
+      "target": "$1"
+    },
+    {
+      "authenticationType": "xsuaa",
+      "csrfProtection": false,
+      "source": "^/ProcurementService/(.*)$",
+      "destination": "ProcurementService",
+      "target": "$1"
+    },
+    {
+      "authenticationType": "xsuaa",
+      "csrfProtection": false,
+      "source": "^/BUSINESS_RULES/(.*)$",
+      "destination": "BUSINESS_RULES",
+      "target": "$1"
+    },{
+      "authenticationType": "xsuaa",
+      "csrfProtection": false,
+      "source": "^/DocManagement/(.*)$",
+      "destination": "DocManagement",
+      "target": "$1"
+    },{
+      "authenticationType": "xsuaa",
+      "csrfProtection": false,
+      "source": "^/workflowService/(.*)$",
+      "destination": "workflowService",
+      "target": "$1"
+    },
+    {
+      "source": "^(.*)$",
+      "target": "$1",
+      "service": "html5-apps-repo-rt",
+      "authenticationType": "xsuaa"
+    }
+  ]
+}
